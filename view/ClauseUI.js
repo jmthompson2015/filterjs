@@ -4,10 +4,7 @@ import Resolver from "../artifact/Resolver.js";
 
 import Clause from "../state/Clause.js";
 
-import NumberInput from "./NumberInput.js";
 import RU from "./ReactUtilities.js";
-import Select from "./Select.js";
-import StringInput from "./StringInput.js";
 import TCU from "./TableColumnUtilities.js";
 
 const asNumber = (value) => {
@@ -41,7 +38,7 @@ const createColumnSelect = (
   column,
   handleChange
 ) =>
-  React.createElement(Select, {
+  React.createElement(ReactComponent.Select, {
     id: `columnSelect${index}`,
     values: tableColumns,
     initialValue: column.key,
@@ -56,7 +53,7 @@ const createOperatorSelect = (clause, index, column, handleChange) => {
   if (operatorType) {
     const operators = operatorType.values();
 
-    return React.createElement(Select, {
+    return React.createElement(ReactComponent.Select, {
       id: `operatorSelect${index}`,
       values: operators,
       initialValue: clause ? clause.operatorKey : undefined,
@@ -80,7 +77,7 @@ const createNumberClauseUI = (clause, index, handleChange, min, max, step) => {
     const rhs2 = clause ? asNumber(clause.rhs2) : undefined;
     return [
       RU.createCell(
-        React.createElement(NumberInput, {
+        React.createElement(ReactComponent.NumberInput, {
           id: idKey,
           className: "field",
           initialValue: rhs || 0,
@@ -99,7 +96,7 @@ const createNumberClauseUI = (clause, index, handleChange, min, max, step) => {
         `toField${index}`
       ),
       RU.createCell(
-        React.createElement(NumberInput, {
+        React.createElement(ReactComponent.NumberInput, {
           id: `rhs2Field${index}`,
           className: "field",
           initialValue: rhs2 || 0,
@@ -115,7 +112,7 @@ const createNumberClauseUI = (clause, index, handleChange, min, max, step) => {
 
   return [
     RU.createCell(
-      React.createElement(NumberInput, {
+      React.createElement(ReactComponent.NumberInput, {
         id: idKey,
         className: "field",
         initialValue: rhs || 0,
@@ -135,7 +132,7 @@ const createStringClauseUI = (clause, index, handleChange) => {
   const idKey = `rhsField${index}`;
   return [
     RU.createCell(
-      React.createElement(StringInput, {
+      React.createElement(ReactComponent.StringInput, {
         id: idKey,
         className: "field",
         initialValue: clause ? clause.rhs : undefined,

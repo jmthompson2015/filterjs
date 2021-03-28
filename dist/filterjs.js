@@ -274,69 +274,6 @@
 
   Object.freeze(Filter);
 
-  class NumberInput extends React.PureComponent {
-    constructor(props) {
-      super(props);
-
-      const { initialValue } = this.props;
-      this.state = { value: initialValue };
-
-      this.handleBlur = this.handleBlurFunction.bind(this);
-      this.handleChange = this.handleChangeFunction.bind(this);
-    }
-
-    handleBlurFunction() {
-      const { onBlur } = this.props;
-      const { value } = this.state;
-      const myValue = Number(value);
-
-      onBlur(myValue);
-    }
-
-    handleChangeFunction(event) {
-      const { value } = event.target;
-      const myValue = Number(value);
-
-      this.setState({ value: myValue });
-    }
-
-    render() {
-      const { className, id, initialValue, max, min, step } = this.props;
-
-      return ReactDOMFactories.input({
-        id,
-        type: "number",
-        className,
-        defaultValue: initialValue,
-        max,
-        min,
-        step,
-        onBlur: this.handleBlur,
-        onChange: this.handleChange,
-      });
-    }
-  }
-
-  NumberInput.propTypes = {
-    onBlur: PropTypes.func.isRequired,
-
-    id: PropTypes.string,
-    className: PropTypes.string,
-    initialValue: PropTypes.number,
-    max: PropTypes.number,
-    min: PropTypes.number,
-    step: PropTypes.number,
-  };
-
-  NumberInput.defaultProps = {
-    id: "numberInput",
-    className: undefined,
-    initialValue: 0,
-    max: undefined,
-    min: undefined,
-    step: undefined,
-  };
-
   const ReactUtilities = {};
 
   ReactUtilities.createCell = (element, key, className, props = {}) => {
@@ -373,102 +310,6 @@
     });
 
     return ReactDOMFactories.div(newProps, rows);
-  };
-
-  const createOption = (key, label) =>
-    ReactDOMFactories.option({ key, value: key }, label);
-
-  class Select extends React.PureComponent {
-    constructor(props) {
-      super(props);
-
-      this.handleChange = this.handleChangeFunction.bind(this);
-    }
-
-    handleChangeFunction() {
-      const { id, onChange } = this.props;
-      const valueSelect = document.getElementById(id);
-      const selected = valueSelect.options[valueSelect.selectedIndex].value;
-      onChange(selected);
-    }
-
-    render() {
-      const { id, values, initialValue } = this.props;
-      const options = R.map(
-        (value) => createOption(value.key, value.label),
-        values
-      );
-
-      return ReactDOMFactories.select(
-        { id, defaultValue: initialValue, onChange: this.handleChange },
-        options
-      );
-    }
-  }
-
-  Select.propTypes = {
-    values: PropTypes.arrayOf(PropTypes.shape()).isRequired,
-    onChange: PropTypes.func.isRequired,
-
-    id: PropTypes.string,
-    initialValue: PropTypes.string,
-  };
-
-  Select.defaultProps = {
-    id: "select",
-    initialValue: undefined,
-  };
-
-  class StringInput extends React.PureComponent {
-    constructor(props) {
-      super(props);
-
-      const { initialValue } = this.props;
-      this.state = { value: initialValue };
-
-      this.handleBlur = this.handleBlurFunction.bind(this);
-      this.handleChange = this.handleChangeFunction.bind(this);
-    }
-
-    handleBlurFunction() {
-      const { onBlur } = this.props;
-      const { value } = this.state;
-
-      onBlur(value);
-    }
-
-    handleChangeFunction(event) {
-      const { value } = event.target;
-
-      this.setState({ value });
-    }
-
-    render() {
-      const { className, id, initialValue } = this.props;
-
-      return ReactDOMFactories.input({
-        id,
-        type: "text",
-        className,
-        defaultValue: initialValue,
-        onBlur: this.handleBlur,
-        onChange: this.handleChange,
-      });
-    }
-  }
-
-  StringInput.propTypes = {
-    onBlur: PropTypes.func.isRequired,
-
-    id: PropTypes.string,
-    className: PropTypes.string,
-    initialValue: PropTypes.string,
-  };
-
-  StringInput.defaultProps = {
-    id: "stringInput",
-    className: undefined,
-    initialValue: "",
   };
 
   const TableColumnUtilities = {};
@@ -512,7 +353,7 @@
     column,
     handleChange
   ) =>
-    React.createElement(Select, {
+    React.createElement(ReactComponent.Select, {
       id: `columnSelect${index}`,
       values: tableColumns,
       initialValue: column.key,
@@ -527,7 +368,7 @@
     if (operatorType) {
       const operators = operatorType.values();
 
-      return React.createElement(Select, {
+      return React.createElement(ReactComponent.Select, {
         id: `operatorSelect${index}`,
         values: operators,
         initialValue: clause ? clause.operatorKey : undefined,
@@ -551,7 +392,7 @@
       const rhs2 = clause ? asNumber(clause.rhs2) : undefined;
       return [
         ReactUtilities.createCell(
-          React.createElement(NumberInput, {
+          React.createElement(ReactComponent.NumberInput, {
             id: idKey,
             className: "field",
             initialValue: rhs || 0,
@@ -570,7 +411,7 @@
           `toField${index}`
         ),
         ReactUtilities.createCell(
-          React.createElement(NumberInput, {
+          React.createElement(ReactComponent.NumberInput, {
             id: `rhs2Field${index}`,
             className: "field",
             initialValue: rhs2 || 0,
@@ -586,7 +427,7 @@
 
     return [
       ReactUtilities.createCell(
-        React.createElement(NumberInput, {
+        React.createElement(ReactComponent.NumberInput, {
           id: idKey,
           className: "field",
           initialValue: rhs || 0,
@@ -606,7 +447,7 @@
     const idKey = `rhsField${index}`;
     return [
       ReactUtilities.createCell(
-        React.createElement(StringInput, {
+        React.createElement(ReactComponent.StringInput, {
           id: idKey,
           className: "field",
           initialValue: clause ? clause.rhs : undefined,
