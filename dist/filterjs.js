@@ -274,44 +274,6 @@
 
   Object.freeze(Filter);
 
-  const ReactUtilities = {};
-
-  ReactUtilities.createCell = (element, key, className, props = {}) => {
-    const newProps = R.merge(props, {
-      key,
-      className,
-      style: {
-        display: "table-cell",
-      },
-    });
-
-    return ReactDOMFactories.div(newProps, element);
-  };
-
-  ReactUtilities.createRow = (cells, key, className, props = {}) => {
-    const newProps = R.merge(props, {
-      key,
-      className,
-      style: {
-        display: "table-row",
-      },
-    });
-
-    return ReactDOMFactories.div(newProps, cells);
-  };
-
-  ReactUtilities.createTable = (rows, key, className, props = {}) => {
-    const newProps = R.merge(props, {
-      key,
-      className,
-      style: {
-        display: "table",
-      },
-    });
-
-    return ReactDOMFactories.div(newProps, rows);
-  };
-
   const TableColumnUtilities = {};
 
   TableColumnUtilities.tableColumn = (tableColumns, columnKey) => {
@@ -321,6 +283,8 @@
   };
 
   Object.freeze(TableColumnUtilities);
+
+  const RU$1 = ReactComponent.ReactUtilities;
 
   const asNumber = (value) => {
     if (typeof value === "string") {
@@ -355,12 +319,13 @@
   ) =>
     React.createElement(ReactComponent.Select, {
       id: `columnSelect${index}`,
+      className: "fjs-select",
       values: tableColumns,
       initialValue: column.key,
       onChange: handleChange,
     });
 
-  const createEmptyCell = (key) => ReactUtilities.createCell("", key);
+  const createEmptyCell = (key) => RU$1.createCell("", key);
 
   const createOperatorSelect = (clause, index, column, handleChange) => {
     const operatorType = Resolver.operatorType(column.type);
@@ -370,6 +335,7 @@
 
       return React.createElement(ReactComponent.Select, {
         id: `operatorSelect${index}`,
+        className: "fjs-select",
         values: operators,
         initialValue: clause ? clause.operatorKey : undefined,
         onChange: handleChange,
@@ -388,13 +354,14 @@
   const createNumberClauseUI = (clause, index, handleChange, min, max, step) => {
     const idKey = `rhsField${index}`;
     const rhs = clause ? asNumber(clause.rhs) : undefined;
+
     if (clause.operatorKey === NumberOperator.IS_IN_THE_RANGE) {
       const rhs2 = clause ? asNumber(clause.rhs2) : undefined;
       return [
-        ReactUtilities.createCell(
+        RU$1.createCell(
           React.createElement(ReactComponent.NumberInput, {
             id: idKey,
-            className: "field",
+            className: "fjs-number-input",
             initialValue: rhs || 0,
             max,
             min,
@@ -403,17 +370,17 @@
           }),
           `rhs1NumberField1${index}`
         ),
-        ReactUtilities.createCell(
+        RU$1.createCell(
           ReactDOMFactories.span(
             { style: { paddingLeft: 3, paddingRight: 3 } },
             "to"
           ),
           `toField${index}`
         ),
-        ReactUtilities.createCell(
+        RU$1.createCell(
           React.createElement(ReactComponent.NumberInput, {
             id: `rhs2Field${index}`,
-            className: "field",
+            className: "fjs-number-input",
             initialValue: rhs2 || 0,
             max,
             min,
@@ -426,10 +393,10 @@
     }
 
     return [
-      ReactUtilities.createCell(
+      RU$1.createCell(
         React.createElement(ReactComponent.NumberInput, {
           id: idKey,
-          className: "field",
+          className: "fjs-number-input",
           initialValue: rhs || 0,
           max,
           min,
@@ -446,10 +413,10 @@
   const createStringClauseUI = (clause, index, handleChange) => {
     const idKey = `rhsField${index}`;
     return [
-      ReactUtilities.createCell(
+      RU$1.createCell(
         React.createElement(ReactComponent.StringInput, {
           id: idKey,
-          className: "field",
+          className: "fjs-string-input",
           initialValue: clause ? clause.rhs : undefined,
           onBlur: handleChange,
         }),
@@ -578,7 +545,7 @@
       const { clause, index, isRemoveHidden, tableColumns } = this.props;
       const column = columnFor(tableColumns, clause);
 
-      const columnSelect = ReactUtilities.createCell(
+      const columnSelect = RU$1.createCell(
         createColumnSelect(
           tableColumns,
           clause,
@@ -588,7 +555,7 @@
         ),
         `${column.key}ColumnSelectCell${index}`
       );
-      const operatorSelect = ReactUtilities.createCell(
+      const operatorSelect = RU$1.createCell(
         createOperatorSelect(clause, index, column, this.handleChange),
         `${column.key}OperatorSelectCell${index}`
       );
@@ -600,11 +567,11 @@
         column.max,
         column.step
       );
-      const removeButton = ReactUtilities.createCell(
+      const removeButton = RU$1.createCell(
         createRemoveButton(isRemoveHidden, this.handleRemoveOnClick),
         `removeButtonCell${index}`
       );
-      const addButton = ReactUtilities.createCell(
+      const addButton = RU$1.createCell(
         createAddButton(this.handleAddOnClick),
         `addButtonCell${index}`
       );
@@ -617,10 +584,10 @@
         addButton,
       ];
 
-      return ReactUtilities.createRow(
+      return RU$1.createRow(
         cells,
         `${column.key}ClauseUI${index}`,
-        "fjs-clause-row"
+        "fjs-clause-ui"
       );
     }
   }
@@ -641,6 +608,8 @@
     index: undefined,
     isRemoveHidden: false,
   };
+
+  const RU = ReactComponent.ReactUtilities;
 
   const defaultClause = (tableColumn) => {
     let answer;
@@ -751,12 +720,12 @@
       );
 
       const cells = [
-        ReactUtilities.createCell(unfilterButton, "unfilterButton", "button"),
-        ReactUtilities.createCell(filterButton, "filterButton", "button"),
+        RU.createCell(unfilterButton, "unfilterButton", "button"),
+        RU.createCell(filterButton, "filterButton", "button"),
       ];
-      const row = ReactUtilities.createRow(cells, "button-row");
+      const row = RU.createRow(cells, "button-row");
 
-      return ReactUtilities.createTable(row, "buttonTable", "buttons");
+      return RU.createTable(row, "buttonTable", "fjs-button-table fr");
     }
 
     createTable() {
@@ -790,30 +759,30 @@
         rows.push(row);
       }
 
-      return ReactUtilities.createTable(rows, "filterTable");
+      return RU.createTable(rows, "filterTable");
     }
 
     render() {
-      const filterTable = ReactUtilities.createCell(
+      const filterTable = RU.createCell(
         this.createTable(),
         "filterTable",
         "inner-table"
       );
-      const rows0 = ReactUtilities.createRow(filterTable, "filterTableCells");
-      const table0 = ReactUtilities.createTable(rows0, "filterTableRow");
-      const cell0 = ReactUtilities.createCell(table0, "filterTable");
-      const cell1 = ReactUtilities.createCell(
+      const rows0 = RU.createRow(filterTable, "filterTableCells");
+      const table0 = RU.createTable(rows0, "filterTableRow");
+      const cell0 = RU.createCell(table0, "filterTable");
+      const cell1 = RU.createCell(
         this.createButtonTable(),
         "buttonTable",
-        "button-panel"
+        "fjs-button-panel"
       );
 
       const rows = [
-        ReactUtilities.createRow(cell0, "filterTablesRow"),
-        ReactUtilities.createRow(cell1, "buttonRow"),
+        RU.createRow(cell0, "filterTablesRow"),
+        RU.createRow(cell1, "buttonRow"),
       ];
 
-      return ReactUtilities.createTable(rows, "filterTable", "fjs-filter");
+      return RU.createTable(rows, "filterTable", "fjs-filter-ui");
     }
   }
 

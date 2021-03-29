@@ -3,86 +3,15 @@ body {
   font-family: "San Francisco", "Helvetica Neue", Helvetica, sans-serif;
 }
 
-.fjs-collapsible-panel .label {
-  font-weight: bold;
-  padding-left: 5px;
-}
-
-.fjs-filter {
+.fjs-filter-ui {
   background: #f0f0f0;
   font-size: small;
 }
 
-.fjs-filter .button {
+.fjs-filter-ui div {
   padding: 2px;
 }
 
-.fjs-filter .buttons {
-  float: right;
-}
-
-.fjs-filter .button-panel {
-  padding: 2px;
-  text-align: center;
-}
-
-.fjs-filter .field {
+.fjs-filter-ui input {
   width: 100px;
-}
-
-.fjs-filter-row div {
-  padding: 2px;
-}
-
-.fjs-rowCount {
-  font-size: small;
-  padding-top: 10px;
-  text-align: left;
-}
-
-.fjs-show-columns {
-  background: #f0f0f0;
-  font-size: small;
-  padding: 2px;
-}
-
-.fjs-show-columns .buttons {
-  float: right;
-}
-
-.fjs-show-columns .button-panel {
-  padding: 2px;
-  text-align: center;
-}
-
-.fjs-table {
-  border-collapse: collapse;
-  font-size: small;
-  text-align: center;
-}
-
-.fjs-table td {
-  border: 1px solid Gray;
-}
-
-.fjs-table th {
-  background: Gray;
-  border: 1px solid White;
-  color: White;
-}
-
-.fjs-table tbody tr:nth-child(2n) td {
-  background: #f0f0f0;
-}
-
-.fjs-table tbody tr:nth-child(2n + 1) td {
-  background: White;
-}
-
-.fjs-tl {
-  text-align: left;
-}
-
-.fjs-tr {
-  text-align: right;
 }

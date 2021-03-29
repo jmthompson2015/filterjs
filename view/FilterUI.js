@@ -7,7 +7,8 @@ import Clause from "../state/Clause.js";
 import Filter from "../state/Filter.js";
 
 import ClauseUI from "./ClauseUI.js";
-import RU from "./ReactUtilities.js";
+
+const RU = ReactComponent.ReactUtilities;
 
 const defaultClause = (tableColumn) => {
   let answer;
@@ -123,7 +124,7 @@ class FilterUI extends React.PureComponent {
     ];
     const row = RU.createRow(cells, "button-row");
 
-    return RU.createTable(row, "buttonTable", "buttons");
+    return RU.createTable(row, "buttonTable", "fjs-button-table fr");
   }
 
   createTable() {
@@ -172,7 +173,7 @@ class FilterUI extends React.PureComponent {
     const cell1 = RU.createCell(
       this.createButtonTable(),
       "buttonTable",
-      "button-panel"
+      "fjs-button-panel"
     );
 
     const rows = [
@@ -180,7 +181,7 @@ class FilterUI extends React.PureComponent {
       RU.createRow(cell1, "buttonRow"),
     ];
 
-    return RU.createTable(rows, "filterTable", "fjs-filter");
+    return RU.createTable(rows, "filterTable", "fjs-filter-ui");
   }
 }
 

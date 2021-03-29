@@ -4,8 +4,9 @@ import Resolver from "../artifact/Resolver.js";
 
 import Clause from "../state/Clause.js";
 
-import RU from "./ReactUtilities.js";
 import TCU from "./TableColumnUtilities.js";
+
+const RU = ReactComponent.ReactUtilities;
 
 const asNumber = (value) => {
   if (typeof value === "string") {
@@ -40,6 +41,7 @@ const createColumnSelect = (
 ) =>
   React.createElement(ReactComponent.Select, {
     id: `columnSelect${index}`,
+    className: "fjs-select",
     values: tableColumns,
     initialValue: column.key,
     onChange: handleChange,
@@ -55,6 +57,7 @@ const createOperatorSelect = (clause, index, column, handleChange) => {
 
     return React.createElement(ReactComponent.Select, {
       id: `operatorSelect${index}`,
+      className: "fjs-select",
       values: operators,
       initialValue: clause ? clause.operatorKey : undefined,
       onChange: handleChange,
@@ -73,13 +76,14 @@ const createBooleanClauseUI = (index) => [
 const createNumberClauseUI = (clause, index, handleChange, min, max, step) => {
   const idKey = `rhsField${index}`;
   const rhs = clause ? asNumber(clause.rhs) : undefined;
+
   if (clause.operatorKey === NumberOp.IS_IN_THE_RANGE) {
     const rhs2 = clause ? asNumber(clause.rhs2) : undefined;
     return [
       RU.createCell(
         React.createElement(ReactComponent.NumberInput, {
           id: idKey,
-          className: "field",
+          className: "fjs-number-input",
           initialValue: rhs || 0,
           max,
           min,
@@ -98,7 +102,7 @@ const createNumberClauseUI = (clause, index, handleChange, min, max, step) => {
       RU.createCell(
         React.createElement(ReactComponent.NumberInput, {
           id: `rhs2Field${index}`,
-          className: "field",
+          className: "fjs-number-input",
           initialValue: rhs2 || 0,
           max,
           min,
@@ -114,7 +118,7 @@ const createNumberClauseUI = (clause, index, handleChange, min, max, step) => {
     RU.createCell(
       React.createElement(ReactComponent.NumberInput, {
         id: idKey,
-        className: "field",
+        className: "fjs-number-input",
         initialValue: rhs || 0,
         max,
         min,
@@ -134,7 +138,7 @@ const createStringClauseUI = (clause, index, handleChange) => {
     RU.createCell(
       React.createElement(ReactComponent.StringInput, {
         id: idKey,
-        className: "field",
+        className: "fjs-string-input",
         initialValue: clause ? clause.rhs : undefined,
         onBlur: handleChange,
       }),
@@ -305,7 +309,7 @@ class ClauseUI extends React.PureComponent {
     return RU.createRow(
       cells,
       `${column.key}ClauseUI${index}`,
-      "fjs-clause-row"
+      "fjs-clause-ui"
     );
   }
 }
