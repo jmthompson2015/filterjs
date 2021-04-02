@@ -43,6 +43,94 @@ QUnit.test("create()", (assert) => {
   assert.equal(clauseLast.operatorKey, StringOp.CONTAINS);
 });
 
+QUnit.test("default()", (assert) => {
+  // Setup.
+  const tableColumns = [
+    {
+      key: "name",
+      label: "Name",
+    },
+    {
+      key: "red",
+      label: "Red",
+      type: "number",
+    },
+    {
+      key: "green",
+      label: "Green",
+      type: "number",
+    },
+    {
+      key: "blue",
+      label: "Blue",
+      type: "number",
+    },
+    {
+      key: "liked",
+      label: "Liked",
+      type: "boolean",
+    },
+  ];
+
+  // Run.
+  const result = Filter.default(tableColumns);
+
+  // Verify.
+  assert.ok(result);
+  const { name, clauses } = result;
+  assert.ok(name);
+  assert.equal(name, "Filter 1", `name = ${name}`);
+  assert.ok(clauses);
+  assert.equal(clauses.length, 1, `clauses.length = ${clauses.length}`);
+});
+
+QUnit.test("passes()", (assert) => {
+  // Setup.
+  const tableColumns = [
+    {
+      key: "name",
+      label: "Name",
+    },
+    {
+      key: "red",
+      label: "Red",
+      type: "number",
+    },
+    {
+      key: "green",
+      label: "Green",
+      type: "number",
+    },
+    {
+      key: "blue",
+      label: "Blue",
+      type: "number",
+    },
+    {
+      key: "liked",
+      label: "Liked",
+      type: "boolean",
+    },
+  ];
+
+  // Run.
+  const result = Filter.default(tableColumns);
+
+  // Verify.
+  assert.ok(result);
+  assert.equal(result.name, "Filter 1");
+
+  const clause0 = R.head(result.clauses);
+  assert.ok(clause0, `clause0 = ${clause0}`);
+  assert.equal(clause0.itemKey, "name");
+  assert.equal(clause0.operatorKey, StringOp.CONTAINS);
+
+  const clauseLast = R.last(result.clauses);
+  assert.ok(clause0, `clauseLast = ${clauseLast}`);
+  assert.equal(clauseLast.itemKey, "name");
+  assert.equal(clauseLast.operatorKey, StringOp.CONTAINS);
+});
+
 QUnit.test("passes()", (assert) => {
   // Setup.
   const filter1 = Clause.create({
@@ -139,5 +227,5 @@ QUnit.test("passes() null", (assert) => {
   assert.equal(Filter.passes(null)(null), false);
 });
 
-const ClauseTest = {};
-export default ClauseTest;
+const FilterTest = {};
+export default FilterTest;

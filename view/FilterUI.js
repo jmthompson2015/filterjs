@@ -1,8 +1,3 @@
-import BooleanOp from "../artifact/BooleanOperator.js";
-import ClauseType from "../artifact/ClauseType.js";
-import NumberOp from "../artifact/NumberOperator.js";
-import StringOp from "../artifact/StringOperator.js";
-
 import Clause from "../state/Clause.js";
 import Filter from "../state/Filter.js";
 
@@ -10,61 +5,17 @@ import ClauseUI from "./ClauseUI.js";
 
 const RU = ReactComponent.ReactUtilities;
 
-const defaultClause = (tableColumn) => {
-  let answer;
-
-  if (tableColumn) {
-    switch (tableColumn.type) {
-      case ClauseType.BOOLEAN:
-        answer = Clause.create({
-          itemKey: tableColumn.key,
-          operatorKey: Object.keys(BooleanOp.properties)[0],
-        });
-        break;
-      case ClauseType.NUMBER:
-        answer = Clause.create({
-          itemKey: tableColumn.key,
-          operatorKey: Object.keys(NumberOp.properties)[0],
-          rhs: 0,
-        });
-        break;
-      case ClauseType.STRING:
-      case undefined:
-        answer = Clause.create({
-          itemKey: tableColumn.key,
-          operatorKey: Object.keys(StringOp.properties)[0],
-          rhs: "",
-        });
-        break;
-      default:
-        throw new Error(`Unknown tableColumn.type: ${tableColumn.type}`);
-    }
-  }
-
-  return answer;
-};
-
-const defaultFilter = (tableColumns) => {
-  const filterFunction = (column) =>
-    [undefined, "true", true].includes(column.isShown);
-  const myTableColumns = R.filter(filterFunction, tableColumns);
-  const tableColumn =
-    myTableColumns && myTableColumns.length > 0 ? myTableColumns[0] : undefined;
-  const clauses = [defaultClause(tableColumn)];
-
-  return Filter.create({ name: "Filter 1", clauses });
-};
-
 class FilterUI extends React.PureComponent {
   constructor(props) {
     super(props);
 
     const { filter, tableColumns } = this.props;
-    const filter2 = filter || defaultFilter(tableColumns);
+    const filter2 = filter || Filter.default(tableColumns);
     this.state = { filter: filter2 };
 
     this.handleAddOnClick = this.handleAddOnClickFunction.bind(this);
     this.handleChange = this.handleChangeFunction.bind(this);
+    this.handleNameChange = this.handleNameChangeFunction.bind(this);
     this.handleRemoveOnClick = this.handleRemoveOnClickFunction.bind(this);
   }
 
@@ -72,14 +23,17 @@ class FilterUI extends React.PureComponent {
     const { onChange, tableColumns } = this.props;
     const { filter } = this.state;
     const firstColumn = tableColumns[0];
-    const newClause = defaultClause(firstColumn);
-    const newClauses = R.insert(index + 1, newClause, filter.clauses);
-    const newFilter = Filter.create({
-      name: filter.name,
-      clauses: newClauses,
-    });
-    this.setState({ filter: newFilter });
-    onChange(newFilter);
+    const newClause = Clause.default(firstColumn.key, firstColumn.type);
+
+    if (newClause) {
+      const newClauses = R.insert(index + 1, newClause, filter.clauses);
+      const newFilter = Filter.create({
+        name: filter.name,
+        clauses: newClauses,
+      });
+      this.setState({ filter: newFilter });
+      onChange(newFilter);
+    }
   }
 
   handleChangeFunction(newClause, index) {
@@ -89,6 +43,17 @@ class FilterUI extends React.PureComponent {
     const newFilter = Filter.create({
       name: filter.name,
       clauses: newClauses,
+    });
+    this.setState({ filter: newFilter });
+    onChange(newFilter);
+  }
+
+  handleNameChangeFunction(newName) {
+    const { onChange } = this.props;
+    const { filter } = this.state;
+    const newFilter = Filter.create({
+      name: newName,
+      clauses: filter.clauses,
     });
     this.setState({ filter: newFilter });
     onChange(newFilter);
@@ -127,19 +92,22 @@ class FilterUI extends React.PureComponent {
     return RU.createTable(row, "buttonTable", "fjs-button-table fr");
   }
 
-  createTable() {
+  createClauseTable() {
     const rows = [];
 
     const { tableColumns } = this.props;
     const { filter } = this.state;
     const { handleAddOnClick, handleChange, handleRemoveOnClick } = this;
-    const filter2 = filter || defaultFilter(tableColumns);
+    const filter2 = filter || Filter.default(tableColumns);
     const clauses2 = R.concat([], filter2.clauses);
 
     if (clauses2.length === 0) {
       const firstColumn = tableColumns[0];
-      const newClause = defaultClause(firstColumn);
-      clauses2.push(newClause);
+      const newClause = Clause.default(firstColumn.key, firstColumn.type);
+
+      if (newClause) {
+        clauses2.push(newClause);
+      }
     }
 
     for (let i = 0; i < clauses2.length; i += 1) {
@@ -158,27 +126,26 @@ class FilterUI extends React.PureComponent {
       rows.push(row);
     }
 
-    return RU.createTable(rows, "filterTable");
+    return RU.createTable(rows, "clauseTable");
   }
 
   render() {
-    const filterTable = RU.createCell(
-      this.createTable(),
-      "filterTable",
-      "inner-table"
-    );
-    const rows0 = RU.createRow(filterTable, "filterTableCells");
-    const table0 = RU.createTable(rows0, "filterTableRow");
-    const cell0 = RU.createCell(table0, "filterTable");
-    const cell1 = RU.createCell(
-      this.createButtonTable(),
-      "buttonTable",
-      "fjs-button-panel"
-    );
+    const { filter } = this.props;
+    const nameInput = React.createElement(ReactComponent.StringInput, {
+      initialValue: filter ? filter.name : "Filter",
+      onBlur: this.handleNameChange,
+    });
+    const clauseTable = this.createClauseTable();
+    const buttonTable = this.createButtonTable();
+
+    const cell0 = RU.createCell(nameInput, "filterNameTable", "pb2");
+    const cell1 = RU.createCell(clauseTable, "clauseTable");
+    const cell2 = RU.createCell(buttonTable, "buttonTable", "button-panel pt2");
 
     const rows = [
-      RU.createRow(cell0, "filterTablesRow"),
-      RU.createRow(cell1, "buttonRow"),
+      RU.createRow(cell0, "nameRow"),
+      RU.createRow(cell1, "clausesRow"),
+      RU.createRow(cell2, "buttonRow"),
     ];
 
     return RU.createTable(rows, "filterTable", "fjs-filter-ui");

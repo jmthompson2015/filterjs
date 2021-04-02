@@ -231,6 +231,40 @@
       rhs2,
     });
 
+  Clause.default = (itemKey, clauseType) => {
+    let answer;
+
+    if (itemKey) {
+      switch (clauseType) {
+        case ClauseType.BOOLEAN:
+          answer = Clause.create({
+            itemKey,
+            operatorKey: Object.keys(BooleanOperator.properties)[0],
+          });
+          break;
+        case ClauseType.NUMBER:
+          answer = Clause.create({
+            itemKey,
+            operatorKey: Object.keys(NumberOperator.properties)[0],
+            rhs: 0,
+          });
+          break;
+        case ClauseType.STRING:
+        case undefined:
+          answer = Clause.create({
+            itemKey,
+            operatorKey: Object.keys(StringOperator.properties)[0],
+            rhs: "",
+          });
+          break;
+        default:
+          throw new Error(`Unknown clauseType: ${clauseType}`);
+      }
+    }
+
+    return answer;
+  };
+
   Clause.isBooleanClause = (clause) =>
     !R.isNil(clause) && BooleanOperator.keys().includes(clause.operatorKey);
 
@@ -261,6 +295,18 @@
   Filter.create = ({ name = "Filter", clauses = [] }) =>
     Immutable({ name, clauses });
 
+  Filter.default = (tableColumns, index = 1) => {
+    const filterFunction = (column) =>
+      [undefined, "true", true].includes(column.isShown);
+    const myTableColumns = R.filter(filterFunction, tableColumns);
+    const tableColumn =
+      myTableColumns && myTableColumns.length > 0 ? myTableColumns[0] : undefined;
+    const clause = Clause.default(tableColumn.key, tableColumn.type);
+    const clauses = clause ? [clause] : [];
+
+    return Filter.create({ name: `Filter ${index}`, clauses });
+  };
+
   Filter.passes = (filter) => (item) => {
     if (filter && item) {
       const reduceFunction = (accum, clause) =>
@@ -274,6 +320,42 @@
 
   Object.freeze(Filter);
 
+  const FilterGroup = {};
+
+  FilterGroup.create = ({ filters = [], selectedIndex }) => {
+    let index = 0;
+
+    if (
+      Number.isInteger(selectedIndex) &&
+      selectedIndex >= 0 &&
+      selectedIndex < filters.length
+    ) {
+      index = selectedIndex;
+    }
+
+    return Immutable({ filters, selectedIndex: index });
+  };
+
+  FilterGroup.default = (tableColumns) => {
+    const filter = Filter.default(tableColumns);
+    const filters = [filter];
+
+    return FilterGroup.create({ filters });
+  };
+
+  FilterGroup.selectedFilter = (filterGroup) => {
+    let answer;
+
+    if (filterGroup) {
+      const { filters, selectedIndex } = filterGroup;
+      answer = filters[selectedIndex];
+    }
+
+    return answer;
+  };
+
+  Object.freeze(FilterGroup);
+
   const TableColumnUtilities = {};
 
   TableColumnUtilities.tableColumn = (tableColumns, columnKey) => {
@@ -284,7 +366,7 @@
 
   Object.freeze(TableColumnUtilities);
 
-  const RU$1 = ReactComponent.ReactUtilities;
+  const RU$2 = ReactComponent.ReactUtilities;
 
   const asNumber = (value) => {
     if (typeof value === "string") {
@@ -325,7 +407,7 @@
       onChange: handleChange,
     });
 
-  const createEmptyCell = (key) => RU$1.createCell("", key);
+  const createEmptyCell = (key) => RU$2.createCell("", key);
 
   const createOperatorSelect = (clause, index, column, handleChange) => {
     const operatorType = Resolver.operatorType(column.type);
@@ -358,7 +440,7 @@
     if (clause.operatorKey === NumberOperator.IS_IN_THE_RANGE) {
       const rhs2 = clause ? asNumber(clause.rhs2) : undefined;
       return [
-        RU$1.createCell(
+        RU$2.createCell(
           React.createElement(ReactComponent.NumberInput, {
             id: idKey,
             className: "fjs-number-input",
@@ -370,14 +452,14 @@
           }),
           `rhs1NumberField1${index}`
         ),
-        RU$1.createCell(
+        RU$2.createCell(
           ReactDOMFactories.span(
             { style: { paddingLeft: 3, paddingRight: 3 } },
             "to"
           ),
           `toField${index}`
         ),
-        RU$1.createCell(
+        RU$2.createCell(
           React.createElement(ReactComponent.NumberInput, {
             id: `rhs2Field${index}`,
             className: "fjs-number-input",
@@ -393,7 +475,7 @@
     }
 
     return [
-      RU$1.createCell(
+      RU$2.createCell(
         React.createElement(ReactComponent.NumberInput, {
           id: idKey,
           className: "fjs-number-input",
@@ -413,7 +495,7 @@
   const createStringClauseUI = (clause, index, handleChange) => {
     const idKey = `rhsField${index}`;
     return [
-      RU$1.createCell(
+      RU$2.createCell(
         React.createElement(ReactComponent.StringInput, {
           id: idKey,
           className: "fjs-string-input",
@@ -545,7 +627,7 @@
       const { clause, index, isRemoveHidden, tableColumns } = this.props;
       const column = columnFor(tableColumns, clause);
 
-      const columnSelect = RU$1.createCell(
+      const columnSelect = RU$2.createCell(
         createColumnSelect(
           tableColumns,
           clause,
@@ -555,7 +637,7 @@
         ),
         `${column.key}ColumnSelectCell${index}`
       );
-      const operatorSelect = RU$1.createCell(
+      const operatorSelect = RU$2.createCell(
         createOperatorSelect(clause, index, column, this.handleChange),
         `${column.key}OperatorSelectCell${index}`
       );
@@ -567,11 +649,11 @@
         column.max,
         column.step
       );
-      const removeButton = RU$1.createCell(
+      const removeButton = RU$2.createCell(
         createRemoveButton(isRemoveHidden, this.handleRemoveOnClick),
         `removeButtonCell${index}`
       );
-      const addButton = RU$1.createCell(
+      const addButton = RU$2.createCell(
         createAddButton(this.handleAddOnClick),
         `addButtonCell${index}`
       );
@@ -584,7 +666,7 @@
         addButton,
       ];
 
-      return RU$1.createRow(
+      return RU$2.createRow(
         cells,
         `${column.key}ClauseUI${index}`,
         "fjs-clause-ui"
@@ -609,63 +691,19 @@
     isRemoveHidden: false,
   };
 
-  const RU = ReactComponent.ReactUtilities;
-
-  const defaultClause = (tableColumn) => {
-    let answer;
-
-    if (tableColumn) {
-      switch (tableColumn.type) {
-        case ClauseType.BOOLEAN:
-          answer = Clause.create({
-            itemKey: tableColumn.key,
-            operatorKey: Object.keys(BooleanOperator.properties)[0],
-          });
-          break;
-        case ClauseType.NUMBER:
-          answer = Clause.create({
-            itemKey: tableColumn.key,
-            operatorKey: Object.keys(NumberOperator.properties)[0],
-            rhs: 0,
-          });
-          break;
-        case ClauseType.STRING:
-        case undefined:
-          answer = Clause.create({
-            itemKey: tableColumn.key,
-            operatorKey: Object.keys(StringOperator.properties)[0],
-            rhs: "",
-          });
-          break;
-        default:
-          throw new Error(`Unknown tableColumn.type: ${tableColumn.type}`);
-      }
-    }
-
-    return answer;
-  };
-
-  const defaultFilter = (tableColumns) => {
-    const filterFunction = (column) =>
-      [undefined, "true", true].includes(column.isShown);
-    const myTableColumns = R.filter(filterFunction, tableColumns);
-    const tableColumn =
-      myTableColumns && myTableColumns.length > 0 ? myTableColumns[0] : undefined;
-    const clauses = [defaultClause(tableColumn)];
-
-    return Filter.create({ name: "Filter 1", clauses });
-  };
+  const RU$1 = ReactComponent.ReactUtilities;
 
   class FilterUI extends React.PureComponent {
     constructor(props) {
       super(props);
 
       const { filter, tableColumns } = this.props;
-      const filter2 = filter || defaultFilter(tableColumns);
+      const filter2 = filter || Filter.default(tableColumns);
       this.state = { filter: filter2 };
 
       this.handleAddOnClick = this.handleAddOnClickFunction.bind(this);
       this.handleChange = this.handleChangeFunction.bind(this);
+      this.handleNameChange = this.handleNameChangeFunction.bind(this);
       this.handleRemoveOnClick = this.handleRemoveOnClickFunction.bind(this);
     }
 
@@ -673,14 +711,17 @@
       const { onChange, tableColumns } = this.props;
       const { filter } = this.state;
       const firstColumn = tableColumns[0];
-      const newClause = defaultClause(firstColumn);
-      const newClauses = R.insert(index + 1, newClause, filter.clauses);
-      const newFilter = Filter.create({
-        name: filter.name,
-        clauses: newClauses,
-      });
-      this.setState({ filter: newFilter });
-      onChange(newFilter);
+      const newClause = Clause.default(firstColumn.key, firstColumn.type);
+
+      if (newClause) {
+        const newClauses = R.insert(index + 1, newClause, filter.clauses);
+        const newFilter = Filter.create({
+          name: filter.name,
+          clauses: newClauses,
+        });
+        this.setState({ filter: newFilter });
+        onChange(newFilter);
+      }
     }
 
     handleChangeFunction(newClause, index) {
@@ -690,6 +731,17 @@
       const newFilter = Filter.create({
         name: filter.name,
         clauses: newClauses,
+      });
+      this.setState({ filter: newFilter });
+      onChange(newFilter);
+    }
+
+    handleNameChangeFunction(newName) {
+      const { onChange } = this.props;
+      const { filter } = this.state;
+      const newFilter = Filter.create({
+        name: newName,
+        clauses: filter.clauses,
       });
       this.setState({ filter: newFilter });
       onChange(newFilter);
@@ -720,27 +772,30 @@
       );
 
       const cells = [
-        RU.createCell(unfilterButton, "unfilterButton", "button"),
-        RU.createCell(filterButton, "filterButton", "button"),
+        RU$1.createCell(unfilterButton, "unfilterButton", "button"),
+        RU$1.createCell(filterButton, "filterButton", "button"),
       ];
-      const row = RU.createRow(cells, "button-row");
+      const row = RU$1.createRow(cells, "button-row");
 
-      return RU.createTable(row, "buttonTable", "fjs-button-table fr");
+      return RU$1.createTable(row, "buttonTable", "fjs-button-table fr");
     }
 
-    createTable() {
+    createClauseTable() {
       const rows = [];
 
       const { tableColumns } = this.props;
       const { filter } = this.state;
       const { handleAddOnClick, handleChange, handleRemoveOnClick } = this;
-      const filter2 = filter || defaultFilter(tableColumns);
+      const filter2 = filter || Filter.default(tableColumns);
       const clauses2 = R.concat([], filter2.clauses);
 
       if (clauses2.length === 0) {
         const firstColumn = tableColumns[0];
-        const newClause = defaultClause(firstColumn);
-        clauses2.push(newClause);
+        const newClause = Clause.default(firstColumn.key, firstColumn.type);
+
+        if (newClause) {
+          clauses2.push(newClause);
+        }
       }
 
       for (let i = 0; i < clauses2.length; i += 1) {
@@ -759,30 +814,29 @@
         rows.push(row);
       }
 
-      return RU.createTable(rows, "filterTable");
+      return RU$1.createTable(rows, "clauseTable");
     }
 
     render() {
-      const filterTable = RU.createCell(
-        this.createTable(),
-        "filterTable",
-        "inner-table"
-      );
-      const rows0 = RU.createRow(filterTable, "filterTableCells");
-      const table0 = RU.createTable(rows0, "filterTableRow");
-      const cell0 = RU.createCell(table0, "filterTable");
-      const cell1 = RU.createCell(
-        this.createButtonTable(),
-        "buttonTable",
-        "fjs-button-panel"
-      );
+      const { filter } = this.props;
+      const nameInput = React.createElement(ReactComponent.StringInput, {
+        initialValue: filter ? filter.name : "Filter",
+        onBlur: this.handleNameChange,
+      });
+      const clauseTable = this.createClauseTable();
+      const buttonTable = this.createButtonTable();
+
+      const cell0 = RU$1.createCell(nameInput, "filterNameTable", "pb2");
+      const cell1 = RU$1.createCell(clauseTable, "clauseTable");
+      const cell2 = RU$1.createCell(buttonTable, "buttonTable", "button-panel pt2");
 
       const rows = [
-        RU.createRow(cell0, "filterTablesRow"),
-        RU.createRow(cell1, "buttonRow"),
+        RU$1.createRow(cell0, "nameRow"),
+        RU$1.createRow(cell1, "clausesRow"),
+        RU$1.createRow(cell2, "buttonRow"),
       ];
 
-      return RU.createTable(rows, "filterTable", "fjs-filter-ui");
+      return RU$1.createTable(rows, "filterTable", "fjs-filter-ui");
     }
   }
 
@@ -799,6 +853,191 @@
     filter: undefined,
   };
 
+  const RU = ReactComponent.ReactUtilities;
+
+  const mapIndexed = R.addIndex(R.map);
+  const reduceIndexed = R.addIndex(R.reduce);
+
+  const remove = (index, filters) => {
+    const reduceFunction = (accum, filter, i) =>
+      i === index ? accum : R.append(filter, accum);
+
+    return reduceIndexed(reduceFunction, [], filters);
+  };
+
+  const replace = (index, newFilter, filters) => {
+    const mapFunction = (filter, i) => (i === index ? newFilter : filter);
+
+    return mapIndexed(mapFunction, filters);
+  };
+
+  class FilterGroupUI extends React.PureComponent {
+    constructor(props) {
+      super(props);
+
+      const { initialFilterGroup } = this.props;
+      this.state = { filterGroup: initialFilterGroup };
+
+      this.handleDeleteOnClick = this.handleDeleteOnClickFunction.bind(this);
+      this.handleFilterChange = this.handleFilterChangeFunction.bind(this);
+      this.handleFiltersChange = this.handleFiltersChangeFunction.bind(this);
+      this.handleNewOnClick = this.handleNewOnClickFunction.bind(this);
+    }
+
+    handleFilterChangeFunction(filter) {
+      const { onChange } = this.props;
+      const { filterGroup } = this.state;
+      const { filters, selectedIndex } = filterGroup;
+      const newFilters = replace(selectedIndex, filter, filters);
+      const newFilterGroup = FilterGroup.create({
+        filters: newFilters,
+        selectedIndex,
+      });
+      this.setState({ filterGroup: newFilterGroup });
+      onChange(newFilterGroup);
+    }
+
+    handleFiltersChangeFunction(selected) {
+      const { onChange } = this.props;
+      const { filterGroup } = this.state;
+      const { filters } = filterGroup;
+      const filterNames = R.map(R.prop("name"), filters);
+      const selectedIndex = filterNames.indexOf(selected);
+      const newFilterGroup = FilterGroup.create({ filters, selectedIndex });
+      this.setState({ filterGroup: newFilterGroup });
+      onChange(newFilterGroup);
+    }
+
+    handleDeleteOnClickFunction() {
+      const { onChange } = this.props;
+      const { filterGroup } = this.state;
+      const { filters, selectedIndex } = filterGroup;
+      const newFilters = remove(selectedIndex, filters);
+      const newIndex = selectedIndex > 0 ? selectedIndex - 1 : 0;
+      const newFilterGroup = FilterGroup.create({
+        filters: newFilters,
+        selectedIndex: newIndex,
+      });
+      this.setState({ filterGroup: newFilterGroup });
+      onChange(newFilterGroup);
+    }
+
+    handleNewOnClickFunction() {
+      const { onChange, tableColumns } = this.props;
+      const { filterGroup } = this.state;
+      const { filters } = filterGroup;
+      const selectedIndex = filters.length;
+      const filter = Filter.default(tableColumns, selectedIndex + 1);
+      const newFilters = R.append(filter, filters);
+      const newFilterGroup = FilterGroup.create({
+        filters: newFilters,
+        selectedIndex,
+      });
+      this.setState({ filterGroup: newFilterGroup });
+      onChange(newFilterGroup);
+    }
+
+    createButtonTable() {
+      const { filterGroup } = this.state;
+      const { filters } = filterGroup;
+      const disabled = filters.length <= 1;
+      const deleteFilterButton = ReactDOMFactories.button(
+        { onClick: this.handleDeleteOnClick, disabled },
+        "-"
+      );
+      const newFilterButton = ReactDOMFactories.button(
+        { onClick: this.handleNewOnClick },
+        "+"
+      );
+
+      const cells = [
+        RU.createCell(deleteFilterButton, "deleteFilterButton", "button"),
+        RU.createCell(newFilterButton, "newFilterButton", "button"),
+      ];
+      const row = RU.createRow(cells, "button-row");
+
+      return RU.createTable(row, "buttonTable", "fjs-button-table");
+    }
+
+    createFiltersList() {
+      const { filterGroup } = this.state;
+      const { filters, selectedIndex } = filterGroup;
+      const filter = filters[selectedIndex];
+      const size = Math.max(2 + filter.clauses.length, 5);
+      const filterName = filter.name;
+      const reduceFunction = (accum, name) =>
+        R.append({ key: name, label: name }, accum);
+      const filterNames = R.map(R.prop("name"), filters);
+      const values = R.reduce(reduceFunction, [], filterNames);
+
+      return React.createElement(ReactComponent.Select, {
+        key: `${size}${JSON.stringify(filter)}`,
+        attributes: { size },
+        initialValue: filterName,
+        onChange: this.handleFiltersChange,
+        values,
+      });
+    }
+
+    createFiltersTable() {
+      const filtersList = this.createFiltersList();
+      const buttonTable = this.createButtonTable();
+
+      const cell0 = RU.createCell(filtersList, "filtersList");
+      const cell1 = RU.createCell(buttonTable, "buttonTable", "pt2");
+
+      const rows = [
+        RU.createRow(cell0, "filtersListRow"),
+        RU.createRow(cell1, "buttonTableRow"),
+      ];
+
+      return RU.createTable(rows, "filtersTable", "filters-table");
+    }
+
+    createFilterUI() {
+      const { applyOnClick, removeOnClick, tableColumns } = this.props;
+      const { filterGroup } = this.state;
+      const { filters, selectedIndex } = filterGroup;
+      const filter = filters.length > 0 ? filters[selectedIndex] : undefined;
+
+      return React.createElement(FilterUI, {
+        key: JSON.stringify(filter),
+        applyOnClick,
+        filter,
+        onChange: this.handleFilterChange,
+        removeOnClick,
+        tableColumns,
+      });
+    }
+
+    render() {
+      const filtersTable = this.createFiltersTable();
+      const filterUI = this.createFilterUI();
+
+      const cells = [
+        RU.createCell(filtersTable, "filtersTable", "pr2 v-top"),
+        RU.createCell(filterUI, "filterUI", "v-top"),
+      ];
+
+      const row = RU.createRow(cells, "filtersTableRow");
+
+      return RU.createTable(row, "filtersTable", "fjs-filters-ui f6");
+    }
+  }
+
+  FilterGroupUI.propTypes = {
+    applyOnClick: PropTypes.func.isRequired,
+    onChange: PropTypes.func.isRequired,
+    removeOnClick: PropTypes.func.isRequired,
+    tableColumns: PropTypes.arrayOf(PropTypes.shape()).isRequired,
+
+    initialFilterGroup: PropTypes.shape(),
+  };
+
+  FilterGroupUI.defaultProps = {
+    initialFilterGroup: [],
+  };
+
   class FilterJS {}
 
   FilterJS.BooleanOperator = BooleanOperator;
@@ -807,8 +1046,10 @@
 
   FilterJS.Clause = Clause;
   FilterJS.Filter = Filter;
+  FilterJS.FilterGroup = FilterGroup;
 
   FilterJS.FilterUI = FilterUI;
+  FilterJS.FilterGroupUI = FilterGroupUI;
 
   return FilterJS;
 

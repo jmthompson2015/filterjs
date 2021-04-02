@@ -52,6 +52,21 @@ QUnit.test("create() string", (assert) => {
   assert.equal(result.rhs, rhs);
 });
 
+QUnit.test("default()", (assert) => {
+  // Setup.
+  const key = "name";
+  const type = "number";
+
+  // Run.
+  const result = Clause.default(key, type);
+
+  // Verify.
+  assert.ok(result);
+  assert.equal(result.itemKey, key);
+  assert.equal(result.operatorKey, NumberOp.IS);
+  assert.equal(result.rhs, 0);
+});
+
 QUnit.test("isBooleanClause()", (assert) => {
   // Setup.
   const itemKey = "name";

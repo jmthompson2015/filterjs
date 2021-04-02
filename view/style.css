@@ -3,15 +3,6 @@ body {
   font-family: "San Francisco", "Helvetica Neue", Helvetica, sans-serif;
 }
 
-.fjs-filter-ui {
-  background: #f0f0f0;
-  font-size: small;
-}
-
-.fjs-filter-ui div {
-  padding: 2px;
-}
-
 .fjs-filter-ui input {
   width: 100px;
 }
