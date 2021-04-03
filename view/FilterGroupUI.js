@@ -31,6 +31,8 @@ class FilterGroupUI extends React.PureComponent {
     this.handleDeleteOnClick = this.handleDeleteOnClickFunction.bind(this);
     this.handleFilterChange = this.handleFilterChangeFunction.bind(this);
     this.handleFiltersChange = this.handleFiltersChangeFunction.bind(this);
+    this.handleMoveDownOnClick = this.handleMoveDownOnClickFunction.bind(this);
+    this.handleMoveUpOnClick = this.handleMoveUpOnClickFunction.bind(this);
     this.handleNewOnClick = this.handleNewOnClickFunction.bind(this);
   }
 
@@ -72,6 +74,36 @@ class FilterGroupUI extends React.PureComponent {
     onChange(newFilterGroup);
   }
 
+  handleMoveDownOnClickFunction() {
+    const { onChange } = this.props;
+    const { filterGroup } = this.state;
+    const { filters, selectedIndex } = filterGroup;
+    const newIndex = selectedIndex + 1;
+    // Must have a mutable copy of filters.
+    const newFilters = R.move(selectedIndex, newIndex, R.concat([], filters));
+    const newFilterGroup = FilterGroup.create({
+      filters: newFilters,
+      selectedIndex: newIndex,
+    });
+    this.setState({ filterGroup: newFilterGroup });
+    onChange(newFilterGroup);
+  }
+
+  handleMoveUpOnClickFunction() {
+    const { onChange } = this.props;
+    const { filterGroup } = this.state;
+    const { filters, selectedIndex } = filterGroup;
+    const newIndex = selectedIndex - 1;
+    // Must have a mutable copy of filters.
+    const newFilters = R.move(selectedIndex, newIndex, R.concat([], filters));
+    const newFilterGroup = FilterGroup.create({
+      filters: newFilters,
+      selectedIndex: newIndex,
+    });
+    this.setState({ filterGroup: newFilterGroup });
+    onChange(newFilterGroup);
+  }
+
   handleNewOnClickFunction() {
     const { onChange, tableColumns } = this.props;
     const { filterGroup } = this.state;
@@ -89,10 +121,20 @@ class FilterGroupUI extends React.PureComponent {
 
   createButtonTable() {
     const { filterGroup } = this.state;
-    const { filters } = filterGroup;
-    const disabled = filters.length <= 1;
+    const { filters, selectedIndex } = filterGroup;
+    const moveDownDisabled = selectedIndex >= filters.length - 1;
+    const moveDownFilterButton = ReactDOMFactories.button(
+      { onClick: this.handleMoveDownOnClick, disabled: moveDownDisabled },
+      "\u21E9"
+    );
+    const moveUpDisabled = selectedIndex < 1;
+    const moveUpFilterButton = ReactDOMFactories.button(
+      { onClick: this.handleMoveUpOnClick, disabled: moveUpDisabled },
+      "\u21E7"
+    );
+    const deleteDisabled = filters.length <= 1;
     const deleteFilterButton = ReactDOMFactories.button(
-      { onClick: this.handleDeleteOnClick, disabled },
+      { onClick: this.handleDeleteOnClick, disabled: deleteDisabled },
       "-"
     );
     const newFilterButton = ReactDOMFactories.button(
@@ -101,6 +143,8 @@ class FilterGroupUI extends React.PureComponent {
     );
 
     const cells = [
+      RU.createCell(moveDownFilterButton, "moveDownFilterButton", "button"),
+      RU.createCell(moveUpFilterButton, "moveUpFilterButton", "button"),
       RU.createCell(deleteFilterButton, "deleteFilterButton", "button"),
       RU.createCell(newFilterButton, "newFilterButton", "button"),
     ];
@@ -141,7 +185,7 @@ class FilterGroupUI extends React.PureComponent {
       RU.createRow(cell1, "buttonTableRow"),
     ];
 
-    return RU.createTable(rows, "filtersTable", "filters-table");
+    return RU.createTable(rows, "filtersTable", "fjs-filters-table");
   }
 
   createFilterUI() {

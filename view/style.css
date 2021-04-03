@@ -6,3 +6,7 @@ body {
 .fjs-filter-ui input {
   width: 100px;
 }
+
+.fjs-filters-table select {
+  width: 100%;
+}
