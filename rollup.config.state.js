@@ -3,6 +3,6 @@ export default {
   output: {
     file: "./dist/filter-state.js",
     format: "umd",
-    name: "FilterState",
+    name: "FilterJS",
   },
 };

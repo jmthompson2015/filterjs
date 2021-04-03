@@ -41,6 +41,32 @@ QUnit.test("compareFunction() CONTAINS array", (assert) => {
   assert.equal(operator.compareFunction(["test", "something"], "vi"), false);
 });
 
+QUnit.test("compareFunction() CONTAINS array of maps", (assert) => {
+  // Setup.
+  const operatorKey = StringOp.CONTAINS;
+  const operator = StringOp.properties[operatorKey];
+
+  // Run / Verify.
+  assert.equal(
+    operator.compareFunction(
+      [
+        { key: "test", value: "something" },
+        { key: "red", value: 255 },
+      ],
+      "test"
+    ),
+    true
+  );
+  assert.equal(
+    operator.compareFunction([{ key: "test", value: "something" }], "th"),
+    true
+  );
+  assert.equal(
+    operator.compareFunction([{ key: "test", value: "something" }], "vi"),
+    false
+  );
+});
+
 QUnit.test("compareFunction() CONTAINS or", (assert) => {
   // Setup.
   const operatorKey = StringOp.CONTAINS;
@@ -286,6 +312,30 @@ QUnit.test("compareFunction() ENDS_WITH or", (assert) => {
   assert.equal(operator.compareFunction("test", "duh | test"), true);
   assert.equal(operator.compareFunction("test", "duh | vi"), false);
   assert.equal(operator.compareFunction(undefined, "duh | vi"), false);
+});
+
+QUnit.test("toString()", (assert) => {
+  // Setup.
+
+  // Run / Verify.
+  assert.equal(StringOp.toString(undefined), undefined);
+  assert.equal(StringOp.toString(null), null);
+  assert.equal(StringOp.toString(true), "true");
+  assert.equal(StringOp.toString(1234), "1234");
+  assert.equal(StringOp.toString("Herman"), "herman");
+  assert.equal(StringOp.toString([1, 2, 3, 4]), "1 2 3 4");
+  assert.equal(StringOp.toString({ one: 1, two: 2, three: 3 }), "1 2 3");
+  assert.equal(
+    StringOp.toString([{ key: "Test", value: "Something" }]),
+    "test something"
+  );
+  assert.equal(
+    StringOp.toString([
+      { key: "test", value: "Something" },
+      { key: "red", value: 255 },
+    ]),
+    "test something red 255"
+  );
 });
 
 QUnit.test("keys and values", (assert) => {
