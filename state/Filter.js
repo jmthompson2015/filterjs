@@ -17,10 +17,10 @@ Filter.default = (tableColumns, index = 1) => {
   return Filter.create({ name: `Filter ${index}`, clauses });
 };
 
-Filter.passes = (filter) => (item) => {
+Filter.passes = (filter, item) => {
   if (filter && item) {
     const reduceFunction = (accum, clause) =>
-      accum && Clause.passes(clause)(item);
+      accum && Clause.passes(clause, item);
 
     return R.reduce(reduceFunction, true, filter.clauses);
   }

@@ -84,7 +84,7 @@ QUnit.test("default()", (assert) => {
   assert.equal(clauses.length, 1, `clauses.length = ${clauses.length}`);
 });
 
-QUnit.test("passes()", (assert) => {
+QUnit.test("passes() 1", (assert) => {
   // Setup.
   const tableColumns = [
     {
@@ -131,7 +131,7 @@ QUnit.test("passes()", (assert) => {
   assert.equal(clauseLast.operatorKey, StringOp.CONTAINS);
 });
 
-QUnit.test("passes()", (assert) => {
+QUnit.test("passes() 2", (assert) => {
   // Setup.
   const filter1 = Clause.create({
     itemKey: "red",
@@ -190,12 +190,12 @@ QUnit.test("passes()", (assert) => {
   };
 
   // Run / Verify.
-  assert.equal(Filter.passes(filter)(item1), true);
-  assert.equal(Filter.passes(filter)(item2), false);
-  assert.equal(Filter.passes(filter)(item3), false);
-  assert.equal(Filter.passes(filter)(item4), true);
-  assert.equal(Filter.passes(filter)(item5), true);
-  assert.equal(Filter.passes(filter)(item6), false);
+  assert.equal(Filter.passes(filter, item1), true);
+  assert.equal(Filter.passes(filter, item2), false);
+  assert.equal(Filter.passes(filter, item3), false);
+  assert.equal(Filter.passes(filter, item4), true);
+  assert.equal(Filter.passes(filter, item5), true);
+  assert.equal(Filter.passes(filter, item6), false);
 });
 
 QUnit.test("passes() null", (assert) => {
@@ -222,9 +222,9 @@ QUnit.test("passes() null", (assert) => {
   };
 
   // Run / Verify.
-  assert.equal(Filter.passes(null)(item1), false);
-  assert.equal(Filter.passes(filter)(null), false);
-  assert.equal(Filter.passes(null)(null), false);
+  assert.equal(Filter.passes(null, item1), false);
+  assert.equal(Filter.passes(filter, null), false);
+  assert.equal(Filter.passes(null, null), false);
 });
 
 const FilterTest = {};

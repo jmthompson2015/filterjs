@@ -213,9 +213,9 @@ QUnit.test("passes() boolean", (assert) => {
   const item = { liked: true };
 
   // Run / Verify.
-  assert.equal(Clause.passes(clause1)(item), true, "clause1");
-  assert.equal(Clause.passes(clause2)(item), false, "clause2");
-  assert.equal(Clause.passes(clause3)(item), false, "clause3");
+  assert.equal(Clause.passes(clause1, item), true, "clause1");
+  assert.equal(Clause.passes(clause2, item), false, "clause2");
+  assert.equal(Clause.passes(clause3, item), false, "clause3");
 });
 
 QUnit.test("passes() null", (assert) => {
@@ -226,9 +226,9 @@ QUnit.test("passes() null", (assert) => {
   const item = { liked: true };
 
   // Run / Verify.
-  assert.equal(Clause.passes(null)(item), false, "clause1");
-  assert.equal(Clause.passes(clause)(null), false, "clause2");
-  assert.equal(Clause.passes(null)(null), false, "clause3");
+  assert.equal(Clause.passes(null, item), false, "clause1");
+  assert.equal(Clause.passes(clause, null), false, "clause2");
+  assert.equal(Clause.passes(null, null), false, "clause3");
 });
 
 QUnit.test("passes() number", (assert) => {
@@ -253,11 +253,11 @@ QUnit.test("passes() number", (assert) => {
   const item = { red: 15 };
 
   // Run / Verify.
-  assert.equal(Clause.passes(clause1)(item), true, "clause1");
-  assert.equal(Clause.passes(clause2)(item), false, "clause2");
-  assert.equal(Clause.passes(clause3)(item), false, "clause3");
-  assert.equal(Clause.passes(clause4)(item), true, "clause4");
-  assert.equal(Clause.passes(clause5)(item), true, "clause5");
+  assert.equal(Clause.passes(clause1, item), true, "clause1");
+  assert.equal(Clause.passes(clause2, item), false, "clause2");
+  assert.equal(Clause.passes(clause3, item), false, "clause3");
+  assert.equal(Clause.passes(clause4, item), true, "clause4");
+  assert.equal(Clause.passes(clause5, item), true, "clause5");
 });
 
 QUnit.test("passes() string", (assert) => {
@@ -276,10 +276,10 @@ QUnit.test("passes() string", (assert) => {
   const item = { name: "Red" };
 
   // Run / Verify.
-  assert.equal(Clause.passes(clause1)(item), true, "clause1");
-  assert.equal(Clause.passes(clause2)(item), false, "clause2");
-  assert.equal(Clause.passes(clause3)(item), false, "clause3");
-  assert.equal(Clause.passes(clause4)(item), true, "clause4");
+  assert.equal(Clause.passes(clause1, item), true, "clause1");
+  assert.equal(Clause.passes(clause2, item), false, "clause2");
+  assert.equal(Clause.passes(clause3, item), false, "clause3");
+  assert.equal(Clause.passes(clause4, item), true, "clause4");
 });
 
 const ClauseTest = {};

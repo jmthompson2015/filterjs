@@ -311,7 +311,7 @@
   Clause.isStringClause = (clause) =>
     !R.isNil(clause) && StringOperator.keys().includes(clause.operatorKey);
 
-  Clause.passes = (clause) => (item) => {
+  Clause.passes = (clause, item) => {
     if (clause && item) {
       const compare = Resolver.compareFunction(clause.operatorKey);
 
@@ -344,10 +344,10 @@
     return Filter.create({ name: `Filter ${index}`, clauses });
   };
 
-  Filter.passes = (filter) => (item) => {
+  Filter.passes = (filter, item) => {
     if (filter && item) {
       const reduceFunction = (accum, clause) =>
-        accum && Clause.passes(clause)(item);
+        accum && Clause.passes(clause, item);
 
       return R.reduce(reduceFunction, true, filter.clauses);
     }

@@ -57,7 +57,7 @@ Clause.isNumberClause = (clause) =>
 Clause.isStringClause = (clause) =>
   !R.isNil(clause) && StringOp.keys().includes(clause.operatorKey);
 
-Clause.passes = (clause) => (item) => {
+Clause.passes = (clause, item) => {
   if (clause && item) {
     const compare = Resolver.compareFunction(clause.operatorKey);
 
