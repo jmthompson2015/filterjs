@@ -100,7 +100,7 @@
       const vv = StringOperator.toString(value);
       const rr = StringOperator.toString(r);
 
-      return vv.includes(rr);
+      return vv ? vv.includes(rr) : false;
     });
 
   const isCompareFunction = (lhs, rhs) =>
