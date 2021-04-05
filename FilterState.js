@@ -1,4 +1,5 @@
 import BooleanOperator from "./artifact/BooleanOperator.js";
+import ClauseType from "./artifact/ClauseType.js";
 import NumberOperator from "./artifact/NumberOperator.js";
 import StringOperator from "./artifact/StringOperator.js";
 
@@ -9,6 +10,7 @@ import FilterGroup from "./state/FilterGroup.js";
 class FilterState {}
 
 FilterState.BooleanOperator = BooleanOperator;
+FilterState.ClauseType = ClauseType;
 FilterState.NumberOperator = NumberOperator;
 FilterState.StringOperator = StringOperator;
 

@@ -28,6 +28,33 @@
 
   Object.freeze(BooleanOperator);
 
+  const ClauseType = {
+    BOOLEAN: "boolean",
+    NUMBER: "number",
+    STRING: "string",
+  };
+
+  ClauseType.properties = {
+    boolean: {
+      name: "Boolean",
+      key: "boolean",
+    },
+    number: {
+      name: "Number",
+      key: "number",
+    },
+    string: {
+      name: "String",
+      key: "string",
+    },
+  };
+
+  ClauseType.keys = () => Object.keys(ClauseType.properties);
+
+  ClauseType.values = () => Object.values(ClauseType.properties);
+
+  Object.freeze(ClauseType);
+
   const NumberOperator = {
     IS: "noIs",
     IS_NOT: "noIsNot",
@@ -178,33 +205,6 @@
   StringOperator.values = () => Object.values(StringOperator.properties);
 
   Object.freeze(StringOperator);
-
-  const ClauseType = {
-    BOOLEAN: "boolean",
-    NUMBER: "number",
-    STRING: "string",
-  };
-
-  ClauseType.properties = {
-    boolean: {
-      name: "Boolean",
-      key: "boolean",
-    },
-    number: {
-      name: "Number",
-      key: "number",
-    },
-    string: {
-      name: "String",
-      key: "string",
-    },
-  };
-
-  ClauseType.keys = () => Object.keys(ClauseType.properties);
-
-  ClauseType.values = () => Object.values(ClauseType.properties);
-
-  Object.freeze(ClauseType);
 
   const Resolver = {};
 
@@ -1122,6 +1122,7 @@
   class FilterJS {}
 
   FilterJS.BooleanOperator = BooleanOperator;
+  FilterJS.ClauseType = ClauseType;
   FilterJS.NumberOperator = NumberOperator;
   FilterJS.StringOperator = StringOperator;
 
