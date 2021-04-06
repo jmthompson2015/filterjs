@@ -195,7 +195,7 @@ class FilterGroupUI extends React.PureComponent {
     const filter = filters.length > 0 ? filters[selectedIndex] : undefined;
 
     return React.createElement(FilterUI, {
-      key: JSON.stringify(filter),
+      key: JSON.stringify(filter.clauses),
       applyOnClick,
       filter,
       onChange: this.handleFilterChange,

@@ -11,12 +11,14 @@ class FilterUI extends React.PureComponent {
 
     const { filter, tableColumns } = this.props;
     const filter2 = filter || Filter.default(tableColumns);
-    this.state = { filter: filter2 };
+    this.state = { filter: filter2, isApplied: false };
 
     this.handleAddOnClick = this.handleAddOnClickFunction.bind(this);
     this.handleChange = this.handleChangeFunction.bind(this);
+    this.handleFilterOnClick = this.handleFilterOnClickFunction.bind(this);
     this.handleNameChange = this.handleNameChangeFunction.bind(this);
     this.handleRemoveOnClick = this.handleRemoveOnClickFunction.bind(this);
+    this.handleUnfilterOnClick = this.handleUnfilterOnClickFunction.bind(this);
   }
 
   handleAddOnClickFunction(index) {
@@ -48,6 +50,12 @@ class FilterUI extends React.PureComponent {
     onChange(newFilter);
   }
 
+  handleFilterOnClickFunction() {
+    const { applyOnClick } = this.props;
+    this.setState({ isApplied: true });
+    applyOnClick();
+  }
+
   handleNameChangeFunction(newName) {
     const { onChange } = this.props;
     const { filter } = this.state;
@@ -71,15 +79,21 @@ class FilterUI extends React.PureComponent {
     onChange(newFilter);
   }
 
+  handleUnfilterOnClickFunction() {
+    const { removeOnClick } = this.props;
+    this.setState({ isApplied: false });
+    removeOnClick();
+  }
+
   createButtonTable() {
-    const { applyOnClick, removeOnClick } = this.props;
+    const { isApplied } = this.state;
 
     const unfilterButton = ReactDOMFactories.button(
-      { onClick: removeOnClick },
+      { onClick: this.handleUnfilterOnClick, disabled: !isApplied },
       "Remove"
     );
     const filterButton = ReactDOMFactories.button(
-      { onClick: applyOnClick },
+      { onClick: this.handleFilterOnClick, disabled: isApplied },
       "Apply"
     );
 

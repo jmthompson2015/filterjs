@@ -574,9 +574,9 @@
     return answer;
   };
 
-  const createRemoveButton = (isRemoveHidden, handleOnClick) =>
+  const createRemoveButton = (isRemoveDisabled, handleOnClick) =>
     ReactDOMFactories.button(
-      { hidden: isRemoveHidden, onClick: handleOnClick },
+      { disabled: isRemoveDisabled, onClick: handleOnClick },
       "-"
     );
 
@@ -736,12 +736,14 @@
 
       const { filter, tableColumns } = this.props;
       const filter2 = filter || Filter.default(tableColumns);
-      this.state = { filter: filter2 };
+      this.state = { filter: filter2, isApplied: false };
 
       this.handleAddOnClick = this.handleAddOnClickFunction.bind(this);
       this.handleChange = this.handleChangeFunction.bind(this);
+      this.handleFilterOnClick = this.handleFilterOnClickFunction.bind(this);
       this.handleNameChange = this.handleNameChangeFunction.bind(this);
       this.handleRemoveOnClick = this.handleRemoveOnClickFunction.bind(this);
+      this.handleUnfilterOnClick = this.handleUnfilterOnClickFunction.bind(this);
     }
 
     handleAddOnClickFunction(index) {
@@ -773,6 +775,12 @@
       onChange(newFilter);
     }
 
+    handleFilterOnClickFunction() {
+      const { applyOnClick } = this.props;
+      this.setState({ isApplied: true });
+      applyOnClick();
+    }
+
     handleNameChangeFunction(newName) {
       const { onChange } = this.props;
       const { filter } = this.state;
@@ -796,15 +804,21 @@
       onChange(newFilter);
     }
 
+    handleUnfilterOnClickFunction() {
+      const { removeOnClick } = this.props;
+      this.setState({ isApplied: false });
+      removeOnClick();
+    }
+
     createButtonTable() {
-      const { applyOnClick, removeOnClick } = this.props;
+      const { isApplied } = this.state;
 
       const unfilterButton = ReactDOMFactories.button(
-        { onClick: removeOnClick },
+        { onClick: this.handleUnfilterOnClick, disabled: !isApplied },
         "Remove"
       );
       const filterButton = ReactDOMFactories.button(
-        { onClick: applyOnClick },
+        { onClick: this.handleFilterOnClick, disabled: isApplied },
         "Apply"
       );
 
@@ -1082,7 +1096,7 @@
       const filter = filters.length > 0 ? filters[selectedIndex] : undefined;
 
       return React.createElement(FilterUI, {
-        key: JSON.stringify(filter),
+        key: JSON.stringify(filter.clauses),
         applyOnClick,
         filter,
         onChange: this.handleFilterChange,

@@ -177,9 +177,9 @@ const createClauseUI = (clause, index, handleChange, min, max, step) => {
   return answer;
 };
 
-const createRemoveButton = (isRemoveHidden, handleOnClick) =>
+const createRemoveButton = (isRemoveDisabled, handleOnClick) =>
   ReactDOMFactories.button(
-    { hidden: isRemoveHidden, onClick: handleOnClick },
+    { disabled: isRemoveDisabled, onClick: handleOnClick },
     "-"
   );
 
