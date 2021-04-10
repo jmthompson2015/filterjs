@@ -8,12 +8,7 @@ import TCU from "./TableColumnUtilities.js";
 
 const RU = ReactComponent.ReactUtilities;
 
-const asNumber = (value) => {
-  if (typeof value === "string") {
-    return Number(value);
-  }
-  return value;
-};
+const asNumber = (value) => (typeof value === "string" ? Number(value) : value);
 
 const columnFor = (tableColumns, clause) => {
   const firstColumnKey = Object.values(tableColumns)[0].key;
@@ -47,8 +42,6 @@ const createColumnSelect = (
     onChange: handleChange,
   });
 
-const createEmptyCell = (key) => RU.createCell("", key);
-
 const createOperatorSelect = (clause, index, column, handleChange) => {
   const operatorType = Resolver.operatorType(column.type);
 
@@ -67,23 +60,28 @@ const createOperatorSelect = (clause, index, column, handleChange) => {
   return null;
 };
 
-const createBooleanClauseUI = (index) => [
-  createEmptyCell(`rhsBooleanField1${index}`),
-  createEmptyCell(`rhsBooleanField2${index}`),
-  createEmptyCell(`rhsBooleanField3${index}`),
-];
+const createBooleanClauseUI = (index) =>
+  RU.createCell("", `rhsBooleanField${index}`);
 
-const createNumberClauseUI = (clause, index, handleChange, min, max, step) => {
+const createNumberClauseUI = (
+  clause,
+  index,
+  handleChange,
+  className,
+  min,
+  max,
+  step
+) => {
   const idKey = `rhsField${index}`;
   const rhs = clause ? asNumber(clause.rhs) : undefined;
 
   if (clause.operatorKey === NumberOp.IS_IN_THE_RANGE) {
     const rhs2 = clause ? asNumber(clause.rhs2) : undefined;
-    return [
+    const cells = [
       RU.createCell(
         React.createElement(ReactComponent.NumberInput, {
           id: idKey,
-          className: "fjs-number-input",
+          className,
           initialValue: rhs || 0,
           max,
           min,
@@ -93,16 +91,13 @@ const createNumberClauseUI = (clause, index, handleChange, min, max, step) => {
         `rhs1NumberField1${index}`
       ),
       RU.createCell(
-        ReactDOMFactories.span(
-          { style: { paddingLeft: 3, paddingRight: 3 } },
-          "to"
-        ),
+        ReactDOMFactories.span({ className: "ph1" }, "to"),
         `toField${index}`
       ),
       RU.createCell(
         React.createElement(ReactComponent.NumberInput, {
           id: `rhs2Field${index}`,
-          className: "fjs-number-input",
+          className,
           initialValue: rhs2 || 0,
           max,
           min,
@@ -112,69 +107,36 @@ const createNumberClauseUI = (clause, index, handleChange, min, max, step) => {
         `rhs2NumberField3${index}`
       ),
     ];
+    const row = RU.createRow(cells, `toRow${index}`);
+    const table = RU.createTable(row, `toTable${index}`);
+    return RU.createCell(table, `toCell${index}`);
   }
 
-  return [
-    RU.createCell(
-      React.createElement(ReactComponent.NumberInput, {
-        id: idKey,
-        className: "fjs-number-input",
-        initialValue: rhs || 0,
-        max,
-        min,
-        step,
-        onBlur: handleChange,
-      }),
-      `rhsNumberField1${index}`
-    ),
-    createEmptyCell(`rhsNumberField2${index}`),
-    createEmptyCell(`rhsNumberField3${index}`),
-  ];
+  return RU.createCell(
+    React.createElement(ReactComponent.NumberInput, {
+      id: idKey,
+      className,
+      initialValue: rhs || 0,
+      max,
+      min,
+      step,
+      onBlur: handleChange,
+    }),
+    `rhsNumberField1${index}`
+  );
 };
 
-const createStringClauseUI = (clause, index, handleChange) => {
+const createStringClauseUI = (clause, index, handleChange, className) => {
   const idKey = `rhsField${index}`;
-  return [
-    RU.createCell(
-      React.createElement(ReactComponent.StringInput, {
-        id: idKey,
-        className: "fjs-string-input",
-        initialValue: clause ? clause.rhs : undefined,
-        onBlur: handleChange,
-      }),
-      `rhsStringField1${index}`
-    ),
-    createEmptyCell(`rhsStringField2${index}`),
-    createEmptyCell(`rhsStringField3${index}`),
-  ];
-};
-
-const createClauseUI = (clause, index, handleChange, min, max, step) => {
-  let answer;
-  const clauseTypeKey = Resolver.clauseTypeByOperator(clause.operatorKey);
-
-  switch (clauseTypeKey) {
-    case ClauseType.BOOLEAN:
-      answer = createBooleanClauseUI(index);
-      break;
-    case ClauseType.NUMBER:
-      answer = createNumberClauseUI(
-        clause,
-        index,
-        handleChange,
-        min,
-        max,
-        step
-      );
-      break;
-    case ClauseType.STRING:
-      answer = createStringClauseUI(clause, index, handleChange);
-      break;
-    default:
-      throw new Error(`Unknown clause clauseTypeKey: ${clause.clauseTypeKey}`);
-  }
-
-  return answer;
+  return RU.createCell(
+    React.createElement(ReactComponent.StringInput, {
+      id: idKey,
+      className,
+      initialValue: clause ? clause.rhs : undefined,
+      onBlur: handleChange,
+    }),
+    `rhsStringField1${index}`
+  );
 };
 
 const createRemoveButton = (isRemoveDisabled, handleOnClick) =>
@@ -263,8 +225,51 @@ class ClauseUI extends React.PureComponent {
     removeOnClick(index);
   }
 
+  createClauseUI(clause, index, min, max, step) {
+    const { numberInputClass, stringInputClass } = this.props;
+    let answer;
+    const clauseTypeKey = Resolver.clauseTypeByOperator(clause.operatorKey);
+
+    switch (clauseTypeKey) {
+      case ClauseType.BOOLEAN:
+        answer = createBooleanClauseUI(index);
+        break;
+      case ClauseType.NUMBER:
+        answer = createNumberClauseUI(
+          clause,
+          index,
+          this.handleChange,
+          numberInputClass,
+          min,
+          max,
+          step
+        );
+        break;
+      case ClauseType.STRING:
+        answer = createStringClauseUI(
+          clause,
+          index,
+          this.handleChange,
+          stringInputClass
+        );
+        break;
+      default:
+        throw new Error(
+          `Unknown clause clauseTypeKey: ${clause.clauseTypeKey}`
+        );
+    }
+
+    return answer;
+  }
+
   render() {
-    const { clause, index, isRemoveHidden, tableColumns } = this.props;
+    const {
+      className,
+      clause,
+      index,
+      isRemoveHidden,
+      tableColumns,
+    } = this.props;
     const column = columnFor(tableColumns, clause);
 
     const columnSelect = RU.createCell(
@@ -281,10 +286,9 @@ class ClauseUI extends React.PureComponent {
       createOperatorSelect(clause, index, column, this.handleChange),
       `${column.key}OperatorSelectCell${index}`
     );
-    const clauseUI = createClauseUI(
+    const clauseUI = this.createClauseUI(
       clause,
       index,
-      this.handleChange,
       column.min,
       column.max,
       column.step
@@ -306,11 +310,7 @@ class ClauseUI extends React.PureComponent {
       addButton,
     ];
 
-    return RU.createRow(
-      cells,
-      `${column.key}ClauseUI${index}`,
-      "fjs-clause-ui"
-    );
+    return RU.createRow(cells, `${column.key}ClauseUI${index}`, className);
   }
 }
 
@@ -320,15 +320,21 @@ ClauseUI.propTypes = {
   removeOnClick: PropTypes.func.isRequired,
   tableColumns: PropTypes.arrayOf(PropTypes.shape()).isRequired,
 
+  className: PropTypes.string,
   clause: PropTypes.shape(),
   index: PropTypes.number,
   isRemoveHidden: PropTypes.bool,
+  numberInputClass: PropTypes.string,
+  stringInputClass: PropTypes.string,
 };
 
 ClauseUI.defaultProps = {
+  className: undefined,
   clause: undefined,
   index: undefined,
   isRemoveHidden: false,
+  numberInputClass: "w3",
+  stringInputClass: "w4",
 };
 
 export default ClauseUI;

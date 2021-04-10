@@ -143,14 +143,14 @@ class FilterGroupUI extends React.PureComponent {
     );
 
     const cells = [
-      RU.createCell(moveDownFilterButton, "moveDownFilterButton", "button"),
-      RU.createCell(moveUpFilterButton, "moveUpFilterButton", "button"),
-      RU.createCell(deleteFilterButton, "deleteFilterButton", "button"),
-      RU.createCell(newFilterButton, "newFilterButton", "button"),
+      RU.createCell(moveDownFilterButton, "moveDownFilterButton"),
+      RU.createCell(moveUpFilterButton, "moveUpFilterButton"),
+      RU.createCell(deleteFilterButton, "deleteFilterButton"),
+      RU.createCell(newFilterButton, "newFilterButton"),
     ];
     const row = RU.createRow(cells, "button-row");
 
-    return RU.createTable(row, "buttonTable", "fjs-button-table");
+    return RU.createTable(row, "buttonTable");
   }
 
   createFiltersList() {
@@ -185,7 +185,7 @@ class FilterGroupUI extends React.PureComponent {
       RU.createRow(cell1, "buttonTableRow"),
     ];
 
-    return RU.createTable(rows, "filtersTable", "fjs-filters-table");
+    return RU.createTable(rows, "filtersTable");
   }
 
   createFilterUI() {
@@ -205,17 +205,18 @@ class FilterGroupUI extends React.PureComponent {
   }
 
   render() {
+    const { className, filterEditorClass, filtersListClass } = this.props;
     const filtersTable = this.createFiltersTable();
     const filterUI = this.createFilterUI();
 
     const cells = [
-      RU.createCell(filtersTable, "filtersTable", "pr2 v-top"),
-      RU.createCell(filterUI, "filterUI", "v-top"),
+      RU.createCell(filtersTable, "filtersTable", filtersListClass),
+      RU.createCell(filterUI, "filterUI", filterEditorClass),
     ];
 
     const row = RU.createRow(cells, "filtersTableRow");
 
-    return RU.createTable(row, "filtersTable", "fjs-filters-ui f6");
+    return RU.createTable(row, "filtersTable", className);
   }
 }
 
@@ -225,10 +226,16 @@ FilterGroupUI.propTypes = {
   removeOnClick: PropTypes.func.isRequired,
   tableColumns: PropTypes.arrayOf(PropTypes.shape()).isRequired,
 
+  className: PropTypes.string,
+  filterEditorClass: PropTypes.string,
+  filtersListClass: PropTypes.string,
   initialFilterGroup: PropTypes.shape(),
 };
 
 FilterGroupUI.defaultProps = {
+  className: undefined,
+  filterEditorClass: "v-top",
+  filtersListClass: "pr2 v-top",
   initialFilterGroup: [],
 };
 

@@ -71,16 +71,17 @@ const filter = Filter.create({ name: "Filter 1", clauses });
 
 const element1 = React.createElement(FilterUI, {
   applyOnClick,
+  className: "bg-blue f6",
+  filter,
   onChange,
   removeOnClick,
   tableColumns: TableColumns,
-
-  filter,
 });
 ReactDOM.render(element1, document.getElementById("panel1"));
 
 const element2 = React.createElement(FilterUI, {
   applyOnClick,
+  className: "bg-green f7",
   onChange,
   removeOnClick,
   tableColumns: TableColumns,

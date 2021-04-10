@@ -86,6 +86,7 @@ const initialFilterGroup = FilterGroup.create({ filters: [filter1, filter2] });
 
 const element = React.createElement(FilterGroupUI, {
   applyOnClick,
+  className: "bg-blue f6",
   onChange,
   removeOnClick,
   tableColumns: TableColumns,

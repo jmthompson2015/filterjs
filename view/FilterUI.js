@@ -98,12 +98,12 @@ class FilterUI extends React.PureComponent {
     );
 
     const cells = [
-      RU.createCell(unfilterButton, "unfilterButton", "button"),
-      RU.createCell(filterButton, "filterButton", "button"),
+      RU.createCell(unfilterButton, "unfilterButton"),
+      RU.createCell(filterButton, "filterButton"),
     ];
     const row = RU.createRow(cells, "button-row");
 
-    return RU.createTable(row, "buttonTable", "fjs-button-table fr");
+    return RU.createTable(row, "buttonTable", "fr");
   }
 
   createClauseTable() {
@@ -144,7 +144,13 @@ class FilterUI extends React.PureComponent {
   }
 
   render() {
-    const { filter } = this.props;
+    const {
+      buttonPanelClass,
+      className,
+      filter,
+      filterNameClass,
+      inputPanelClass,
+    } = this.props;
     const nameInput = React.createElement(ReactComponent.StringInput, {
       initialValue: filter ? filter.name : "Filter",
       onBlur: this.handleNameChange,
@@ -152,9 +158,13 @@ class FilterUI extends React.PureComponent {
     const clauseTable = this.createClauseTable();
     const buttonTable = this.createButtonTable();
 
-    const cell0 = RU.createCell(nameInput, "filterNameTable", "pb2");
-    const cell1 = RU.createCell(clauseTable, "clauseTable");
-    const cell2 = RU.createCell(buttonTable, "buttonTable", "button-panel pt2");
+    const cell0 = RU.createCell(nameInput, "filterNameTable", filterNameClass);
+    const cell1 = RU.createCell(clauseTable, "clauseTable", inputPanelClass);
+    const cell2 = RU.createCell(
+      buttonTable,
+      "buttonPanelCell",
+      buttonPanelClass
+    );
 
     const rows = [
       RU.createRow(cell0, "nameRow"),
@@ -162,7 +172,7 @@ class FilterUI extends React.PureComponent {
       RU.createRow(cell2, "buttonRow"),
     ];
 
-    return RU.createTable(rows, "filterTable", "fjs-filter-ui");
+    return RU.createTable(rows, "filterTable", className);
   }
 }
 
@@ -172,11 +182,19 @@ FilterUI.propTypes = {
   removeOnClick: PropTypes.func.isRequired,
   tableColumns: PropTypes.arrayOf(PropTypes.shape()).isRequired,
 
+  buttonPanelClass: PropTypes.string,
+  className: PropTypes.string,
   filter: PropTypes.shape(),
+  filterNameClass: PropTypes.string,
+  inputPanelClass: PropTypes.string,
 };
 
 FilterUI.defaultProps = {
+  buttonPanelClass: "pt2",
+  className: undefined,
   filter: undefined,
+  filterNameClass: "pb2 tl",
+  inputPanelClass: undefined,
 };
 
 export default FilterUI;
